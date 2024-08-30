@@ -13,7 +13,6 @@ const App: React.FC = () => {
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
   const [opponentReady, setOpponentReady] = useState<boolean>(false);
-
   const [playerBoard, setPlayerBoard] = useState<Cell[][]>(
     Array.from({ length: 10 }, () => Array(10).fill(null))
   );
@@ -24,21 +23,46 @@ const App: React.FC = () => {
 
   useEffect(() => {
     socket.on("gameStart", () => setPhase("placement"));
+
     socket.on("updateBoard", (updatedBoard: Cell[][]) =>
       setOpponentBoard(updatedBoard)
     );
+
     socket.on("endGame", (winner: string) => alert(`${winner} wins!`));
     socket.on("playerReady", () => setOpponentReady(true));
     socket.on("startGame", () => setPhase("playing"));
-    socket.on("attackResult", ({ row, col, result }) => {
-      console.log("ATTACK RESULT", { row, col, result });
-      // Update the opponent's board with the attack result
-      setOpponentBoard((prevBoard) => {
-        const newBoard = [...prevBoard];
-        newBoard[row][col] = result;
-        return newBoard;
-      });
-    });
+
+    // Updated attackResult listener
+    socket.on(
+      "attackResult",
+      ({
+        row,
+        col,
+        result,
+        target,
+      }: {
+        row: number;
+        col: number;
+        result: Cell;
+        target: string;
+      }) => {
+        if (target === "opponent") {
+          // Update the opponent's board if the attack was on them
+          setOpponentBoard((prevBoard) => {
+            const newBoard = prevBoard.map((row) => [...row]);
+            newBoard[row][col] = result;
+            return newBoard;
+          });
+        } else {
+          // Update the player's board if they were attacked
+          setPlayerBoard((prevBoard) => {
+            const newBoard = prevBoard.map((row) => [...row]);
+            newBoard[row][col] = result;
+            return newBoard;
+          });
+        }
+      }
+    );
 
     return () => {
       socket.off("gameStart");
@@ -49,13 +73,6 @@ const App: React.FC = () => {
       socket.off("attackResult");
     };
   }, []);
-
-  const checkAndStartGame = () => {
-    if (isReady && opponentReady) {
-      socket.emit("startGame");
-      setPhase("playing");
-    }
-  };
 
   const handlePlacementComplete = () => {
     if (!isReady) {
@@ -89,7 +106,6 @@ const App: React.FC = () => {
   };
 
   const makeMove = (row: number, col: number) => {
-    console.log("makeMOve", { row, col });
     socket.emit("makeMove", { row, col });
   };
 
