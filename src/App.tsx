@@ -75,7 +75,7 @@ const App: React.FC = () => {
   }, []);
 
   const handlePlacementComplete = () => {
-    if (!isReady) {
+    if (!isReady || !opponentReady) {
       setIsReady(true);
       socket.emit("playerReady");
     }
