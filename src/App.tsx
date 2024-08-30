@@ -1,7 +1,8 @@
 // src/App.tsx
 import React, { useState } from "react";
 import JoinGame from "./components/JoinGame";
-import ShipPlacement from "./components/ShipPlacement";
+import ShipPljoinedacement from "./components/ShipPlacement";
+import Game from "./components/Game";
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -18,7 +19,7 @@ const App: React.FC = () => {
       {!joined ? (
         <JoinGame onJoin={handleJoin} />
       ) : (
-        playerId && <ShipPlacement playerId={playerId} />
+        playerId && <Game playerId={playerId} joined={joined} />
       )}
     </div>
   );

@@ -35,7 +35,6 @@ const JoinGame: React.FC<JoinGameProps> = ({ onJoin }) => {
       return;
     }
 
-    // Emit the joinGame event to the server
     socket.emit("joinGame", playerId);
   };
 
