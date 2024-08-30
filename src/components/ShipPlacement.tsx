@@ -4,15 +4,6 @@ import GameBoard from "./GameBoard";
 type Orientation = "horizontal" | "vertical";
 type Ship = "battleship" | "cruiser"; // Add other ships as needed
 
-interface ShipPlacementProps {
-  onPlaceShip: (
-    ship: Ship,
-    orientation: Orientation,
-    row: number,
-    col: number
-  ) => void;
-}
-
 const MAX_SHIPS = {
   battleship: 3,
   cruiser: 3,

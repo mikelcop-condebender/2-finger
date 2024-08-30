@@ -30,6 +30,15 @@ const App: React.FC = () => {
     socket.on("endGame", (winner: string) => alert(`${winner} wins!`));
     socket.on("playerReady", () => setOpponentReady(true));
     socket.on("startGame", () => setPhase("playing"));
+    socket.on("attackResult", ({ row, col, result }) => {
+      console.log("ATTACK RESULT", { row, col, result });
+      // Update the opponent's board with the attack result
+      setOpponentBoard((prevBoard) => {
+        const newBoard = [...prevBoard];
+        newBoard[row][col] = result;
+        return newBoard;
+      });
+    });
 
     return () => {
       socket.off("gameStart");
@@ -37,15 +46,16 @@ const App: React.FC = () => {
       socket.off("endGame");
       socket.off("playerReady");
       socket.off("startGame");
+      socket.off("attackResult");
     };
   }, []);
 
-  // const checkAndStartGame = () => {
-  //   if (isReady && opponentReady) {
-  //     socket.emit("startGame");
-  //     setPhase("playing");
-  //   }
-  // };
+  const checkAndStartGame = () => {
+    if (isReady && opponentReady) {
+      socket.emit("startGame");
+      setPhase("playing");
+    }
+  };
 
   const handlePlacementComplete = () => {
     if (!isReady) {
@@ -78,9 +88,8 @@ const App: React.FC = () => {
     socket.emit("placeShip", { ship, orientation, row, col });
   };
 
-  console.log("PHASE", phase);
-
   const makeMove = (row: number, col: number) => {
+    console.log("makeMOve", { row, col });
     socket.emit("makeMove", { row, col });
   };
 
@@ -102,7 +111,7 @@ const App: React.FC = () => {
       {phase === "placement" && (
         <ShipPlacement
           onPlaceShip={placeShip}
-          onComplete={handlePlacementComplete} // Pass onComplete here
+          onComplete={handlePlacementComplete}
         />
       )}
       {phase === "playing" && (
