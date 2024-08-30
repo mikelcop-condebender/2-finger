@@ -9,8 +9,6 @@ interface GameBoardProps {
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, onCellClick }) => {
-  console.log("GameBoard props - board:", board);
-
   return (
     <div className="game-board">
       {board.map((row, rowIndex) => (
@@ -18,8 +16,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, onCellClick }) => {
           {row.map((cell, colIndex) => (
             <div
               key={colIndex}
-              className="board-cell"
-              onClick={() => onCellClick(rowIndex, colIndex)}
+              className={`board-cell ${cell || ""}`}
+              onClick={() => onCellClick(rowIndex, colIndex)} // Ensure this function is called
             >
               {cell && <span>{cell.charAt(0).toUpperCase()}</span>}
             </div>

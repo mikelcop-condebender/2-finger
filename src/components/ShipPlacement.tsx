@@ -13,6 +13,12 @@ interface ShipPlacementProps {
   ) => void;
 }
 
+const MAX_SHIPS = {
+  battleship: 3,
+  cruiser: 3,
+  // Add other ships and their limits if needed
+};
+
 const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
   const [orientation, setOrientation] = useState<Orientation>("horizontal");
   const [selectedShip, setSelectedShip] = useState<Ship>("battleship");
@@ -22,18 +28,31 @@ const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
       .map(() => Array(10).fill(null))
   );
 
+  const [placedShips, setPlacedShips] = useState<{ [key in Ship]: number }>({
+    battleship: 0,
+    cruiser: 0,
+    // Initialize other ships if needed
+  });
+
+  const canPlaceShip = (ship: Ship) => {
+    return placedShips[ship] < MAX_SHIPS[ship];
+  };
+
   const handleShipPlacement = (row: number, col: number) => {
     const shipSize = getShipSize(selectedShip);
-    console.log("Handling ship placement:", {
-      row,
-      col,
-      shipSize,
-      orientation,
-    });
+
+    if (!canPlaceShip(selectedShip)) {
+      alert("You have reached the maximum number of this type of ship.");
+      return;
+    }
 
     if (isValidPlacement(row, col, shipSize, orientation)) {
+      updateBoard(row, col, shipSize, orientation);
       onPlaceShip(selectedShip, orientation, row, col);
-      updateBoard(row, col, shipSize, orientation); // Ensure this is called
+      setPlacedShips((prev) => ({
+        ...prev,
+        [selectedShip]: prev[selectedShip] + 1,
+      }));
     } else {
       alert("Invalid ship placement");
     }
@@ -45,7 +64,7 @@ const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
     shipSize: number,
     orientation: Orientation
   ) => {
-    const newBoard = playerBoard.map((row) => row.slice()); // Create a copy of the board
+    const newBoard = playerBoard.map((r) => r.slice()); // Create a copy of the board
 
     if (orientation === "horizontal") {
       for (let i = 0; i < shipSize; i++) {
@@ -56,8 +75,6 @@ const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
         newBoard[row + i][col] = selectedShip;
       }
     }
-
-    console.log({ newBoard });
 
     setPlayerBoard(newBoard); // Update the state with the new board
   };
