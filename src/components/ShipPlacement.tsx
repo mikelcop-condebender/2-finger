@@ -19,10 +19,23 @@ const MAX_SHIPS = {
   // Add other ships and their limits if needed
 };
 
-const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
+const ShipPlacement: React.FC<{
+  onPlaceShip: (
+    ship: string,
+    orientation: string,
+    row: number,
+    col: number
+  ) => void;
+  onComplete: () => void;
+}> = ({ onPlaceShip, onComplete }) => {
   const [orientation, setOrientation] = useState<Orientation>("horizontal");
   const [selectedShip, setSelectedShip] = useState<Ship>("battleship");
   const [playerBoard, setPlayerBoard] = useState<(Ship | null)[][]>(
+    Array(10)
+      .fill(null)
+      .map(() => Array(10).fill(null))
+  );
+  const [opponentBoard, setOpponentBoard] = useState<(Ship | null)[][]>(
     Array(10)
       .fill(null)
       .map(() => Array(10).fill(null))
@@ -133,7 +146,9 @@ const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
           <option value="cruiser">Cruiser</option>
           {/* Add more ship options here */}
         </select>
+        <button onClick={onComplete}>Finish Placement</button>
       </div>
+
       <GameBoard board={playerBoard} onCellClick={handleShipPlacement} />
     </div>
   );

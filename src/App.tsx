@@ -11,11 +11,14 @@ type Phase = "menu" | "placement" | "playing";
 
 const App: React.FC = () => {
   const [phase, setPhase] = useState<Phase>("menu");
+  const [isReady, setIsReady] = useState<boolean>(false);
+  const [opponentReady, setOpponentReady] = useState<boolean>(false);
+
   const [playerBoard, setPlayerBoard] = useState<Cell[][]>(
-    Array(10).fill(Array(10).fill(null))
+    Array.from({ length: 10 }, () => Array(10).fill(null))
   );
   const [opponentBoard, setOpponentBoard] = useState<Cell[][]>(
-    Array(10).fill(Array(10).fill(null))
+    Array.from({ length: 10 }, () => Array(10).fill(null))
   );
   const [playerName, setPlayerName] = useState<string>("");
 
@@ -25,13 +28,31 @@ const App: React.FC = () => {
       setOpponentBoard(updatedBoard)
     );
     socket.on("endGame", (winner: string) => alert(`${winner} wins!`));
+    socket.on("playerReady", () => setOpponentReady(true));
+    socket.on("startGame", () => setPhase("playing"));
 
     return () => {
       socket.off("gameStart");
       socket.off("updateBoard");
       socket.off("endGame");
+      socket.off("playerReady");
+      socket.off("startGame");
     };
   }, []);
+
+  // const checkAndStartGame = () => {
+  //   if (isReady && opponentReady) {
+  //     socket.emit("startGame");
+  //     setPhase("playing");
+  //   }
+  // };
+
+  const handlePlacementComplete = () => {
+    if (!isReady) {
+      setIsReady(true);
+      socket.emit("playerReady");
+    }
+  };
 
   const startGame = () => {
     console.log("START NEW GAME");
@@ -57,6 +78,8 @@ const App: React.FC = () => {
     socket.emit("placeShip", { ship, orientation, row, col });
   };
 
+  console.log("PHASE", phase);
+
   const makeMove = (row: number, col: number) => {
     socket.emit("makeMove", { row, col });
   };
@@ -76,12 +99,25 @@ const App: React.FC = () => {
           </div>
         </>
       )}
-      {phase === "placement" && <ShipPlacement onPlaceShip={placeShip} />}
+      {phase === "placement" && (
+        <ShipPlacement
+          onPlaceShip={placeShip}
+          onComplete={handlePlacementComplete} // Pass onComplete here
+        />
+      )}
       {phase === "playing" && (
         <>
           <PlayerList />
-          <GameBoard board={playerBoard} onCellClick={() => {}} />
-          <GameBoard board={opponentBoard} onCellClick={makeMove} />
+          <div className="boards-container">
+            <div className="board-container">
+              <h2>Your Board</h2>
+              <GameBoard board={playerBoard} onCellClick={() => {}} />
+            </div>
+            <div className="board-container">
+              <h2>Opponent's Board</h2>
+              <GameBoard board={opponentBoard} onCellClick={makeMove} />
+            </div>
+          </div>
         </>
       )}
     </div>
