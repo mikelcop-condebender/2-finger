@@ -1,58 +1,123 @@
-// src/components/ShipPlacement.tsx
 import React, { useState } from "react";
-import { Ship, Position } from "../types";
-import Board from "./Board";
-import Instructions from "./Instructions";
-import socket from "../socket";
+import GameBoard from "./GameBoard";
+
+type Orientation = "horizontal" | "vertical";
+type Ship = "battleship" | "cruiser"; // Add other ships as needed
 
 interface ShipPlacementProps {
-  playerId: string;
+  onPlaceShip: (
+    ship: Ship,
+    orientation: Orientation,
+    row: number,
+    col: number
+  ) => void;
 }
 
-const ShipPlacement: React.FC<ShipPlacementProps> = ({ playerId }) => {
-  const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
-  const [shipPositions, setShipPositions] = useState<Position[]>([]);
+const ShipPlacement: React.FC<ShipPlacementProps> = ({ onPlaceShip }) => {
+  const [orientation, setOrientation] = useState<Orientation>("horizontal");
+  const [selectedShip, setSelectedShip] = useState<Ship>("battleship");
+  const [playerBoard, setPlayerBoard] = useState<(Ship | null)[][]>(
+    Array(10)
+      .fill(null)
+      .map(() => Array(10).fill(null))
+  );
 
-  const handleBoardClick = (row: number, col: number) => {
-    if (selectedShip) {
-      const newPositions = [...shipPositions, { row, col }];
-      if (newPositions.length <= selectedShip.size) {
-        setShipPositions(newPositions);
-      }
+  const handleShipPlacement = (row: number, col: number) => {
+    const shipSize = getShipSize(selectedShip);
+    console.log("Handling ship placement:", {
+      row,
+      col,
+      shipSize,
+      orientation,
+    });
+
+    if (isValidPlacement(row, col, shipSize, orientation)) {
+      onPlaceShip(selectedShip, orientation, row, col);
+      updateBoard(row, col, shipSize, orientation); // Ensure this is called
+    } else {
+      alert("Invalid ship placement");
     }
   };
 
-  const placeShip = () => {
-    if (selectedShip && shipPositions.length === selectedShip.size) {
-      socket.emit("placeShip", {
-        playerId,
-        ship: { ...selectedShip, positions: shipPositions },
-      });
-      setShipPositions([]);
-      setSelectedShip(null);
+  const updateBoard = (
+    row: number,
+    col: number,
+    shipSize: number,
+    orientation: Orientation
+  ) => {
+    const newBoard = playerBoard.map((row) => row.slice()); // Create a copy of the board
+
+    if (orientation === "horizontal") {
+      for (let i = 0; i < shipSize; i++) {
+        newBoard[row][col + i] = selectedShip;
+      }
     } else {
-      alert("Invalid ship placement.");
+      for (let i = 0; i < shipSize; i++) {
+        newBoard[row + i][col] = selectedShip;
+      }
+    }
+
+    console.log({ newBoard });
+
+    setPlayerBoard(newBoard); // Update the state with the new board
+  };
+
+  const isValidPlacement = (
+    row: number,
+    col: number,
+    shipSize: number,
+    orientation: Orientation
+  ) => {
+    if (orientation === "horizontal") {
+      if (col + shipSize > 10) return false; // Out of bounds check
+      for (let i = 0; i < shipSize; i++) {
+        if (playerBoard[row][col + i] !== null) return false; // Overlap check
+      }
+    } else {
+      if (row + shipSize > 10) return false; // Out of bounds check
+      for (let i = 0; i < shipSize; i++) {
+        if (playerBoard[row + i][col] !== null) return false; // Overlap check
+      }
+    }
+    return true;
+  };
+
+  const getShipSize = (ship: Ship) => {
+    switch (ship) {
+      case "battleship":
+        return 4; // Example size for Battleship
+      case "cruiser":
+        return 3; // Example size for Cruiser
+      default:
+        return 0;
     }
   };
 
   return (
-    <div>
-      <Instructions />
+    <div className="ship-placement">
       <h2>Place Your Ships</h2>
       <div>
-        <button onClick={() => setSelectedShip({ size: 5, positions: [] })}>
-          Place 5-cell Ship
-        </button>
-        <button onClick={() => setSelectedShip({ size: 4, positions: [] })}>
-          Place 4-cell Ship
-        </button>
+        <label>Orientation:</label>
+        <select
+          value={orientation}
+          onChange={(e) => setOrientation(e.target.value as Orientation)}
+        >
+          <option value="horizontal">Horizontal</option>
+          <option value="vertical">Vertical</option>
+        </select>
       </div>
-      <Board
-        board={Array(10).fill(Array(10).fill(0))} // Example empty board
-        onClick={handleBoardClick}
-        shipPositions={shipPositions} // Pass shipPositions here
-      />
-      <button onClick={placeShip}>Confirm Placement</button>
+      <div>
+        <label>Ship:</label>
+        <select
+          value={selectedShip}
+          onChange={(e) => setSelectedShip(e.target.value as Ship)}
+        >
+          <option value="battleship">Battleship</option>
+          <option value="cruiser">Cruiser</option>
+          {/* Add more ship options here */}
+        </select>
+      </div>
+      <GameBoard board={playerBoard} onCellClick={handleShipPlacement} />
     </div>
   );
 };

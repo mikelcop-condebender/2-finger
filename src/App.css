@@ -1,38 +1,175 @@
-.App {
+/* src/App.css */
+
+.app {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.player-list {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.player-list ul {
+  list-style-type: none;
+  padding: 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.player-list li {
+  margin: 5px 0;
+}
+
+.game-board {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+/* src/App.css */
+
+.ship-placement {
+  margin: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.ship-placement select {
+  margin-right: 10px;
+}
+
+.ship-placement h2 {
+  margin-bottom: 10px;
+}
+
+.board-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.board-cell.battleship {
+  background-color: #f0f0f0;
+  /* Color for battleship */
+}
+
+.board-cell.cruiser {
+  background-color: #d0d0d0;
+  /* Color for cruiser */
+}
+
+/* src/App.css */
+
+.game-board {
+  display: flex;
+  flex-direction: column;
+  margin: 20px auto;
+  border: 2px solid #333;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.board-cell.battleship {
+  background-color: #f0f0f0;
+  /* Light gray for battleship */
+}
+
+.board-cell.cruiser {
+  background-color: #d0d0d0;
+  /* Slightly darker gray for cruiser */
+}
+
+.board-cell.hit {
+  background-color: #ff0000;
+  /* Red for hits */
+}
+
+.board-cell.miss {
+  background-color: #0000ff;
+  /* Blue for misses */
+}
+
+.board-cell span {
+  font-size: 14px;
+  color: #000;
+}
+
+.game-board {
+  display: flex;
+  flex-direction: column;
+  margin: 20px auto;
+  border: 2px solid #333;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.board-row {
+  display: flex;
+}
+
+.board-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.board-cell.battleship {
+  background-color: #f0f0f0;
+  /* Light gray for battleship */
+}
+
+.board-cell.cruiser {
+  background-color: #d0d0d0;
+  /* Slightly darker gray for cruiser */
+}
+
+.board-cell.hit {
+  background-color: #ff0000;
+  /* Red for hits */
+}
+
+.board-cell.miss {
+  background-color: #0000ff;
+  /* Blue for misses */
+}
+
+.board-cell span {
+  font-size: 14px;
+  color: #000;
 }
