@@ -10,6 +10,9 @@ type Cell = "hit" | "miss" | null;
 type Phase = "menu" | "placement" | "playing";
 
 const App: React.FC = () => {
+  const [playerReady, setPlayerReady] = useState<boolean>(false);
+  const [joined, setJoined] = useState<boolean>(false);
+  const [ready, setReady] = useState<boolean>(false);
   const [socketId, setSocketID] = useState<string>("");
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -80,6 +83,7 @@ const App: React.FC = () => {
   }, []);
 
   const handlePlacementComplete = () => {
+    setPlayerReady(() => true);
     if (!isReady || !opponentReady) {
       setIsReady(true);
       socket.emit("playerReady");
@@ -87,16 +91,21 @@ const App: React.FC = () => {
   };
 
   const startGame = () => {
+    setReady(() => true);
     socket.emit("startGame");
   };
 
   const joinGame = () => {
+    setJoined(() => true);
+    console.log("JOIN GAME", playerName);
     socket.emit("setName", playerName);
-    socket.emit("joinGame");
+    socket.emit("joinGame", playerName);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(e.target.value);
+    setJoined(() => false);
+    setReady(() => false);
   };
 
   const placeShip = (
@@ -116,7 +125,12 @@ const App: React.FC = () => {
     <div className="app">
       {phase === "menu" && (
         <>
-          <MainMenu onStartGame={startGame} onJoinGame={joinGame} />
+          <MainMenu
+            onStartGame={startGame}
+            onJoinGame={joinGame}
+            joined={joined}
+            ready={ready}
+          />
           <div>
             <input
               type="text"
@@ -131,6 +145,7 @@ const App: React.FC = () => {
         <ShipPlacement
           onPlaceShip={placeShip}
           onComplete={handlePlacementComplete}
+          playerReady={playerReady}
         />
       )}
       {phase === "playing" && (

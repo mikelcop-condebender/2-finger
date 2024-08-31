@@ -18,7 +18,8 @@ const ShipPlacement: React.FC<{
     col: number
   ) => void;
   onComplete: () => void;
-}> = ({ onPlaceShip, onComplete }) => {
+  playerReady: boolean;
+}> = ({ onPlaceShip, onComplete, playerReady }) => {
   const [orientation, setOrientation] = useState<Orientation>("horizontal");
   const [selectedShip, setSelectedShip] = useState<Ship>("battleship");
   const [playerBoard, setPlayerBoard] = useState<(Ship | null)[][]>(
@@ -137,7 +138,9 @@ const ShipPlacement: React.FC<{
           <option value="cruiser">Cruiser</option>
           {/* Add more ship options here */}
         </select>
-        <button onClick={onComplete}>Finish Placement</button>
+        <button disabled={playerReady} onClick={onComplete}>
+          Finish Placement
+        </button>
       </div>
 
       <GameBoard board={playerBoard} onCellClick={handleShipPlacement} />
