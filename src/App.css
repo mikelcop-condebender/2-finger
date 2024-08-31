@@ -84,3 +84,8 @@
 .board-cell.miss {
   background-color: blue;
 }
+
+.board-cell.opponent-hit {
+  background-color: rgb(82, 220, 235);
+  /* Distinct color for hits on opponent's board */
+}
