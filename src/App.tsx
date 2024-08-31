@@ -13,7 +13,7 @@ const App: React.FC = () => {
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [joined, setJoined] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
-  const [socketId, setSocketID] = useState<string>("");
+  const [, setSocketID] = useState<string>("");
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
   const [opponentReady, setOpponentReady] = useState<boolean>(false);

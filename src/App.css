@@ -89,3 +89,15 @@
   background-color: rgb(82, 220, 235);
   /* Distinct color for hits on opponent's board */
 }
+
+.battleship {
+  background-color: blue;
+}
+
+.cruiser {
+  background-color: rgb(60, 203, 7);
+}
+
+.boat {
+  background-color: rgb(169, 40, 244);
+}

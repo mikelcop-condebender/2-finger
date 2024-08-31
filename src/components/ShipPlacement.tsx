@@ -2,11 +2,19 @@ import React, { useState } from "react";
 import GameBoard from "./GameBoard";
 
 type Orientation = "horizontal" | "vertical";
-type Ship = "battleship" | "cruiser"; // Add other ships as needed
+type Ship = "battleship" | "cruiser" | "boat"; // Add other ships as needed
 
 const MAX_SHIPS = {
   battleship: 3,
+  cruiser: 5,
+  boat: 6,
+  // Add other ships and their limits if needed
+};
+
+const SHIP_SIZE = {
+  battleship: 4,
   cruiser: 3,
+  boat: 1,
   // Add other ships and their limits if needed
 };
 
@@ -27,15 +35,16 @@ const ShipPlacement: React.FC<{
       .fill(null)
       .map(() => Array(10).fill(null))
   );
-  const [opponentBoard, setOpponentBoard] = useState<(Ship | null)[][]>(
-    Array(10)
-      .fill(null)
-      .map(() => Array(10).fill(null))
-  );
+  // const [opponentBoard, setOpponentBoard] = useState<(Ship | null)[][]>(
+  //   Array(10)
+  //     .fill(null)
+  //     .map(() => Array(10).fill(null))
+  // );
 
   const [placedShips, setPlacedShips] = useState<{ [key in Ship]: number }>({
     battleship: 0,
     cruiser: 0,
+    boat: 0,
     // Initialize other ships if needed
   });
 
@@ -46,12 +55,15 @@ const ShipPlacement: React.FC<{
   const handleShipPlacement = (row: number, col: number) => {
     const shipSize = getShipSize(selectedShip);
 
+    console.log({ selectedShip, shipSize });
+
     if (!canPlaceShip(selectedShip)) {
       alert("You have reached the maximum number of this type of ship.");
       return;
     }
 
     if (isValidPlacement(row, col, shipSize, orientation)) {
+      console.log("SSSS", shipSize);
       updateBoard(row, col, shipSize, orientation);
       onPlaceShip(selectedShip, orientation, row, col);
       setPlacedShips((prev) => ({
@@ -105,14 +117,7 @@ const ShipPlacement: React.FC<{
   };
 
   const getShipSize = (ship: Ship) => {
-    switch (ship) {
-      case "battleship":
-        return 4; // Example size for Battleship
-      case "cruiser":
-        return 3; // Example size for Cruiser
-      default:
-        return 0;
-    }
+    return SHIP_SIZE[ship];
   };
 
   return (
@@ -136,6 +141,7 @@ const ShipPlacement: React.FC<{
         >
           <option value="battleship">Battleship</option>
           <option value="cruiser">Cruiser</option>
+          <option value="boat">Boat</option>
           {/* Add more ship options here */}
         </select>
         <button disabled={playerReady} onClick={onComplete}>
