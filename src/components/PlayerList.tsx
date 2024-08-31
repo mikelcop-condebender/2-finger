@@ -10,9 +10,7 @@ const PlayerList: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
-    console.log("IS THIS CALLED");
     socket.on("updatePlayers", (updatedPlayers: Player[]) => {
-      console.log("UPDATE PLAYERS", updatedPlayers);
       setPlayers(updatedPlayers);
     });
 

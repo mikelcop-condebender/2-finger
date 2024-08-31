@@ -18,7 +18,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
   attackerId,
   ownId,
 }) => {
-  console.log({ attackerId, ownId });
   return (
     <div className="game-board">
       {board.map((row, rowIndex) => (

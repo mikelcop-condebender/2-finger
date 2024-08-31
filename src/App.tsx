@@ -10,7 +10,6 @@ type Cell = "hit" | "miss" | null;
 type Phase = "menu" | "placement" | "playing";
 
 const App: React.FC = () => {
-  const [attackerId, setattAckerId] = useState<string>("");
   const [socketId, setSocketID] = useState<string>("");
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -24,7 +23,6 @@ const App: React.FC = () => {
   const [playerName, setPlayerName] = useState<string>("");
 
   useEffect(() => {
-    // Get the socket ID when the socket connects
     socket.on("connect", () => {
       setSocketID(socket.id ?? ""); // Set the socket ID to the state
     });
@@ -46,36 +44,30 @@ const App: React.FC = () => {
         col,
         result,
         target,
-        socketId,
-        opponentId,
       }: {
         row: number;
         col: number;
         result: Cell;
-        target: string;
-        socketId: string;
-        opponentId: string;
+        target: string; // "player" if the current player is attacking, "opponent" if defending
       }) => {
-        console.log({ socketId, opponentId });
-        setattAckerId((prevId) => {
-          return (socketId = prevId);
-        });
-
-        setOpponentBoard((prevBoard) => {
-          const newBoard = prevBoard.map((r) => [...r]);
-          newBoard[row][col] = result;
-          return newBoard;
-        });
-
-        setPlayerBoard((prevBoard) => {
-          const newBoard = prevBoard.map((r) => [...r]);
-          newBoard[row][col] = result;
-          return newBoard;
-        });
+        if (target === "player") {
+          // Update the opponent's board
+          setOpponentBoard((prevBoard) => {
+            const newBoard = prevBoard.map((r) => [...r]);
+            newBoard[row][col] = result;
+            return newBoard;
+          });
+        } else if (target === "opponent") {
+          // Update the player's board (defending board)
+          setPlayerBoard((prevBoard) => {
+            const newBoard = prevBoard.map((r) => [...r]);
+            newBoard[row][col] = result;
+            return newBoard;
+          });
+        }
       }
     );
 
-    // Clean up the event listeners on component unmount
     return () => {
       socket.off("connect");
       socket.off("gameStart");
@@ -95,12 +87,10 @@ const App: React.FC = () => {
   };
 
   const startGame = () => {
-    console.log("START NEW GAME");
     socket.emit("startGame");
   };
 
   const joinGame = () => {
-    console.log("JOIN GAME and SET NAME", playerName);
     socket.emit("setName", playerName);
     socket.emit("joinGame");
   };
@@ -124,7 +114,6 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      <div>Socket ID: {socketId}</div> {/* Display the socket ID */}
       {phase === "menu" && (
         <>
           <MainMenu onStartGame={startGame} onJoinGame={joinGame} />
@@ -153,8 +142,7 @@ const App: React.FC = () => {
               <GameBoard
                 board={playerBoard}
                 onCellClick={() => {}}
-                attackerId={attackerId}
-                ownId={socketId}
+                isOpponentBoard={false}
               />
             </div>
             <div className="board-container">
@@ -163,8 +151,6 @@ const App: React.FC = () => {
                 board={opponentBoard}
                 onCellClick={makeMove}
                 isOpponentBoard={true}
-                attackerId={attackerId}
-                ownId={socketId}
               />
             </div>
           </div>
