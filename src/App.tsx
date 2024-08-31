@@ -97,7 +97,6 @@ const App: React.FC = () => {
 
   const joinGame = () => {
     setJoined(() => true);
-    console.log("JOIN GAME", playerName);
     socket.emit("setName", playerName);
     socket.emit("joinGame", playerName);
   };

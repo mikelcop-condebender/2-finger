@@ -21,7 +21,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       socket.off("joinGame");
     };
   }, []);
-  console.log({ ready });
+
   return (
     <div className="main-menu">
       <h1>Battleship Game</h1>
