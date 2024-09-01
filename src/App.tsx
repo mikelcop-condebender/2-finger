@@ -6,14 +6,22 @@ import ShipPlacement from "./components/ShipPlacement";
 import PlayerList from "./components/PlayerList";
 import socket from "./socket";
 import { Phase, Cell } from "./types";
+import PlayAgainModal from "./components/PlayAgainModal";
 
 interface Player {
   id: string;
   name: string;
+  point: number;
 }
 
 const App: React.FC = () => {
   const boxCount = 6;
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [gameState, setGameState] = useState({
+    board: initializeBoard(),
+    ships: {},
+    points: 0,
+  });
   const [winnerId, setWinnerId] = useState<string>("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [turn, setTurn] = useState<boolean>(false);
@@ -79,7 +87,50 @@ const App: React.FC = () => {
       }
     );
 
-    socket.on("yourTurn", (yourTurn) => setTurn(() => yourTurn.isYourTurn));
+    socket.on("yourTurn", (yourTurn) =>
+      setTurn(() => {
+        return yourTurn.isYourTurn;
+      })
+    );
+
+    socket.on(
+      "attackResult",
+      ({ row, col, result, target, socketId, opponentId, points }) => {
+        // Update the game UI based on the result (hit or miss)
+        // Update points display
+        // updatePointsDisplay(socketId, points);
+      }
+    );
+
+    socket.on("askPlayAgain", ({ message }) => {
+      setModalVisible(true);
+    });
+
+    // Listen for the game restart event from the server
+    socket.on("gameRestarted", ({ message }) => {
+      // console.log({ winnerId, socketId });
+      // alert(message); // Notify the user that the game is restarting
+
+      // Reset all game-related state to initial values
+      setGameState({
+        board: initializeBoard(),
+        ships: {},
+        points: 0,
+      });
+
+      setPlayerBoard(initializeBoard()); // Reset player board
+      setOpponentBoard(initializeBoard()); // Reset opponent board
+      setPhase("placement"); // Set to ship placement phase or whichever is the initial phase
+      setPlayers([]); // Clear players list
+      setTurn(winnerId === socketId); // Reset turn state
+      setWinnerId(""); // Clear winnerId
+      setPlayerReady(false); // Reset readiness states
+      setIsReady(false);
+      setOpponentReady(false);
+
+      // Close any modals that might still be open
+      setModalVisible(false);
+    });
 
     return () => {
       socket.off("connect");
@@ -90,8 +141,25 @@ const App: React.FC = () => {
       socket.off("startGame");
       socket.off("attackResult");
       socket.off("yourTurn");
+      socket.off("askPlayAgain");
+      socket.off("gameRestarted");
     };
   }, [winnerId]);
+
+  // Helper function to initialize a blank board
+  function initializeBoard() {
+    const boxCount = 6; // assuming a 6x6 board
+    return Array.from({ length: boxCount }, () => Array(boxCount).fill(null));
+  }
+
+  const handlePlayAgain = () => {
+    socket.emit("playAgain");
+    setModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
 
   const getOpponentId = () => {
     const playerIdToFind = socketId;
@@ -99,10 +167,8 @@ const App: React.FC = () => {
     return players.find((player) => player.id !== playerIdToFind);
   };
 
-  console.log("PLAYRS", socketId, getOpponentId()?.name);
-
   const handlePlacementComplete = () => {
-    setPlayerReady(() => true);
+    // setPlayerReady(() => true);
     if (!isReady || !opponentReady) {
       setIsReady(true);
       socket.emit("playerReady");
@@ -140,10 +206,8 @@ const App: React.FC = () => {
     socket.emit("makeMove", { row, col });
   };
 
-  console.log("TURN", turn);
-
   return (
-    <div className="app">
+    <div className="app capitalize">
       {phase === "menu" && (
         <>
           <MainMenu
@@ -173,13 +237,35 @@ const App: React.FC = () => {
         <>
           <PlayerList
             players={players}
-            yourTurn={true}
+            yourTurn={turn}
             isWinner={winnerId}
             socketId={socketId}
           />
 
-          <div className="boards-container">
-            <div className="board-container">
+          <div className="xbox">
+            <div className="xrow">
+              <div className="xcell">
+                <h2>Your Board</h2>
+                <GameBoard
+                  board={playerBoard}
+                  onCellClick={() => {}}
+                  isOpponentBoard={false}
+                />
+              </div>
+              <div className="xcell lowercase capitalize">
+                <h2>{getOpponentId()?.name} Board</h2>
+                <GameBoard
+                  board={opponentBoard}
+                  onCellClick={makeMove}
+                  isOpponentBoard={true}
+                  yourTurn={turn}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="main-borad-containter">
+            <div className="board">
               <h2>Your Board</h2>
               <GameBoard
                 board={playerBoard}
@@ -187,7 +273,7 @@ const App: React.FC = () => {
                 isOpponentBoard={false}
               />
             </div>
-            <div className="board-container">
+            <div className="board">
               <h2>{getOpponentId()?.name} Board</h2>
               <GameBoard
                 board={opponentBoard}
@@ -196,7 +282,12 @@ const App: React.FC = () => {
                 yourTurn={turn}
               />
             </div>
-          </div>
+          </div> */}
+          <PlayAgainModal
+            isVisible={isModalVisible}
+            onConfirm={handlePlayAgain}
+            onCancel={handleCancel}
+          />
         </>
       )}
     </div>

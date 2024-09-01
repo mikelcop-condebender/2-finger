@@ -24,9 +24,7 @@ const PlayerList: React.FC<GameBoardProps> = ({
         return false;
       }
     });
-  }, [isWinner, socketId]);
-
-  console.log({ isWinner, socketId });
+  }, [isWinner, socketId, players]);
 
   return (
     <div className="player-list">
@@ -41,7 +39,9 @@ const PlayerList: React.FC<GameBoardProps> = ({
       )}
       <ul>
         {players.map((player: any) => (
-          <li key={player.id}>{player.name}</li>
+          <li key={player.id}>
+            {player.name} : {player.points}
+          </li>
         ))}
       </ul>
     </div>

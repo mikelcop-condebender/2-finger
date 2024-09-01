@@ -44,9 +44,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 }}
                 key={colIndex}
                 className={`board-cell ${cellClass}`}
-                onClick={() =>
-                  (!cell || !yourTurn) && onCellClick(rowIndex, colIndex)
-                } // Ensure this function is called
+                onClick={() => {
+                  return (
+                    (!cell || !yourTurn) && onCellClick(rowIndex, colIndex)
+                  );
+                }} // Ensure this function is called
               >
                 {/* Optional: Display first letter of the ship name if it's a ship */}
                 {typeof cell === "string" &&
