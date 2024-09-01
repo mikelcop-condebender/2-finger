@@ -7,6 +7,8 @@ interface BoardProps {
   onClick: (row: number, col: number) => void;
 }
 
+const boxCount = 6;
+
 const Board: React.FC<BoardProps> = ({ board, onClick }) => {
   return (
     <div>
@@ -32,10 +34,10 @@ const Board: React.FC<BoardProps> = ({ board, onClick }) => {
 
 const Game: React.FC = () => {
   const [playerBoard, setPlayerBoard] = useState<number[][]>(
-    createEmptyBoard(10)
+    createEmptyBoard(boxCount)
   );
   const [enemyBoard, setEnemyBoard] = useState<number[][]>(
-    createEmptyBoard(10)
+    createEmptyBoard(boxCount)
   );
   const [error, setError] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string>("");
@@ -51,16 +53,20 @@ const Game: React.FC = () => {
           setPlayerName(player1Name);
           setOpponentName(player2Name);
           setPlayerBoard(
-            boards[player1Id]?.playerBoard || createEmptyBoard(10)
+            boards[player1Id]?.playerBoard || createEmptyBoard(boxCount)
           );
-          setEnemyBoard(boards[player1Id]?.enemyBoard || createEmptyBoard(10));
+          setEnemyBoard(
+            boards[player1Id]?.enemyBoard || createEmptyBoard(boxCount)
+          );
         } else if (playerId === player2Id) {
           setPlayerName(player2Name);
           setOpponentName(player1Name);
           setPlayerBoard(
-            boards[player2Id]?.playerBoard || createEmptyBoard(10)
+            boards[player2Id]?.playerBoard || createEmptyBoard(boxCount)
           );
-          setEnemyBoard(boards[player2Id]?.enemyBoard || createEmptyBoard(10));
+          setEnemyBoard(
+            boards[player2Id]?.enemyBoard || createEmptyBoard(boxCount)
+          );
         }
       }
     );
@@ -71,8 +77,12 @@ const Game: React.FC = () => {
         [playerId: string]: { playerBoard: number[][]; enemyBoard: number[][] };
       }) => {
         if (playerId) {
-          setPlayerBoard(data[playerId]?.playerBoard || createEmptyBoard(10));
-          setEnemyBoard(data[playerId]?.enemyBoard || createEmptyBoard(10));
+          setPlayerBoard(
+            data[playerId]?.playerBoard || createEmptyBoard(boxCount)
+          );
+          setEnemyBoard(
+            data[playerId]?.enemyBoard || createEmptyBoard(boxCount)
+          );
         }
       }
     );

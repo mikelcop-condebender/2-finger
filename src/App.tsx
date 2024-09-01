@@ -5,23 +5,22 @@ import GameBoard from "./components/GameBoard";
 import ShipPlacement from "./components/ShipPlacement";
 import PlayerList from "./components/PlayerList";
 import socket from "./socket";
-
-type Cell = "hit" | "miss" | null;
-type Phase = "menu" | "placement" | "playing";
+import { Phase, Cell } from "./types";
 
 const App: React.FC = () => {
+  const boxCount = 6;
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [joined, setJoined] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
-  const [socketId, setSocketID] = useState<string>("");
+  const [, setSocketID] = useState<string>("");
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
   const [opponentReady, setOpponentReady] = useState<boolean>(false);
   const [playerBoard, setPlayerBoard] = useState<Cell[][]>(
-    Array.from({ length: 10 }, () => Array(10).fill(null))
+    Array.from({ length: boxCount }, () => Array(boxCount).fill(null))
   );
   const [opponentBoard, setOpponentBoard] = useState<Cell[][]>(
-    Array.from({ length: 10 }, () => Array(10).fill(null))
+    Array.from({ length: boxCount }, () => Array(boxCount).fill(null))
   );
   const [playerName, setPlayerName] = useState<string>("");
 
@@ -31,15 +30,12 @@ const App: React.FC = () => {
     });
 
     socket.on("gameStart", () => setPhase("placement"));
-
     socket.on("updateBoard", (updatedBoard: Cell[][]) =>
       setOpponentBoard(updatedBoard)
     );
-
     socket.on("endGame", (winner: string) => alert(`${winner} wins!`));
     socket.on("playerReady", () => setOpponentReady(true));
     socket.on("startGame", () => setPhase("playing"));
-
     socket.on(
       "attackResult",
       ({
@@ -111,9 +107,10 @@ const App: React.FC = () => {
     ship: string,
     orientation: string,
     row: number,
-    col: number
+    col: number,
+    shipLength: number
   ) => {
-    socket.emit("placeShip", { ship, orientation, row, col });
+    socket.emit("placeShip", { ship, orientation, row, col, shipLength });
   };
 
   const makeMove = (row: number, col: number) => {

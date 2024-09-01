@@ -2,20 +2,31 @@ import React, { useState } from "react";
 import GameBoard from "./GameBoard";
 
 type Orientation = "horizontal" | "vertical";
-type Ship = "battleship" | "cruiser"; // Add other ships as needed
+type Ship = "battleship" | "cruiser" | "boat"; // Add other ships as needed
 
 const MAX_SHIPS = {
-  battleship: 3,
-  cruiser: 3,
+  battleship: 1,
+  cruiser: 1,
+  boat: 1,
   // Add other ships and their limits if needed
 };
+
+const SHIP_SIZE = {
+  battleship: 4,
+  cruiser: 3,
+  boat: 1,
+  // Add other ships and their limits if needed
+};
+
+const boxCount = 6;
 
 const ShipPlacement: React.FC<{
   onPlaceShip: (
     ship: string,
     orientation: string,
     row: number,
-    col: number
+    col: number,
+    shipLength: number
   ) => void;
   onComplete: () => void;
   playerReady: boolean;
@@ -23,19 +34,15 @@ const ShipPlacement: React.FC<{
   const [orientation, setOrientation] = useState<Orientation>("horizontal");
   const [selectedShip, setSelectedShip] = useState<Ship>("battleship");
   const [playerBoard, setPlayerBoard] = useState<(Ship | null)[][]>(
-    Array(10)
+    Array(boxCount)
       .fill(null)
-      .map(() => Array(10).fill(null))
-  );
-  const [opponentBoard, setOpponentBoard] = useState<(Ship | null)[][]>(
-    Array(10)
-      .fill(null)
-      .map(() => Array(10).fill(null))
+      .map(() => Array(boxCount).fill(null))
   );
 
   const [placedShips, setPlacedShips] = useState<{ [key in Ship]: number }>({
     battleship: 0,
     cruiser: 0,
+    boat: 0,
     // Initialize other ships if needed
   });
 
@@ -52,8 +59,9 @@ const ShipPlacement: React.FC<{
     }
 
     if (isValidPlacement(row, col, shipSize, orientation)) {
+      const shipLength = SHIP_SIZE[selectedShip];
       updateBoard(row, col, shipSize, orientation);
-      onPlaceShip(selectedShip, orientation, row, col);
+      onPlaceShip(selectedShip, orientation, row, col, shipLength);
       setPlacedShips((prev) => ({
         ...prev,
         [selectedShip]: prev[selectedShip] + 1,
@@ -91,12 +99,12 @@ const ShipPlacement: React.FC<{
     orientation: Orientation
   ) => {
     if (orientation === "horizontal") {
-      if (col + shipSize > 10) return false; // Out of bounds check
+      if (col + shipSize > boxCount) return false; // Out of bounds check
       for (let i = 0; i < shipSize; i++) {
         if (playerBoard[row][col + i] !== null) return false; // Overlap check
       }
     } else {
-      if (row + shipSize > 10) return false; // Out of bounds check
+      if (row + shipSize > boxCount) return false; // Out of bounds check
       for (let i = 0; i < shipSize; i++) {
         if (playerBoard[row + i][col] !== null) return false; // Overlap check
       }
@@ -105,14 +113,7 @@ const ShipPlacement: React.FC<{
   };
 
   const getShipSize = (ship: Ship) => {
-    switch (ship) {
-      case "battleship":
-        return 4; // Example size for Battleship
-      case "cruiser":
-        return 3; // Example size for Cruiser
-      default:
-        return 0;
-    }
+    return SHIP_SIZE[ship];
   };
 
   return (
@@ -136,6 +137,7 @@ const ShipPlacement: React.FC<{
         >
           <option value="battleship">Battleship</option>
           <option value="cruiser">Cruiser</option>
+          <option value="boat">Boat</option>
           {/* Add more ship options here */}
         </select>
         <button disabled={playerReady} onClick={onComplete}>

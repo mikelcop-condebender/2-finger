@@ -1,7 +1,7 @@
 import React from "react";
 
 type Cell = "hit" | "miss" | Ship | null;
-type Ship = "battleship" | "cruiser"; // Add other ships as needed
+type Ship = "battleship" | "cruiser" | "boat"; // Add other ships as needed
 
 interface GameBoardProps {
   board: Cell[][];
@@ -23,6 +23,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
       {board.map((row, rowIndex) => (
         <div key={rowIndex} className="board-row">
           {row.map((cell, colIndex) => {
+            const shipChar = {
+              battleship: "🚢",
+              cruiser: "🛥️",
+              boat: "🚣‍♀️",
+            };
             // Determine the cell class based on the cell type
             let cellClass = "";
             if (cell === "hit") {
@@ -36,15 +41,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
             return (
               <div
+                style={{ cursor: cell ? "not-allowed" : "crosshair" }}
                 key={colIndex}
                 className={`board-cell ${cellClass}`}
-                onClick={() => onCellClick(rowIndex, colIndex)} // Ensure this function is called
+                onClick={() => !cell && onCellClick(rowIndex, colIndex)} // Ensure this function is called
               >
                 {/* Optional: Display first letter of the ship name if it's a ship */}
                 {typeof cell === "string" &&
                 cell !== "hit" &&
                 cell !== "miss" ? (
-                  <span>{cell.charAt(0).toUpperCase()}</span>
+                  <span>{shipChar[cell]}</span>
                 ) : null}
               </div>
             );
