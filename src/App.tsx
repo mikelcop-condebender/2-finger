@@ -7,12 +7,20 @@ import PlayerList from "./components/PlayerList";
 import socket from "./socket";
 import { Phase, Cell } from "./types";
 
+interface Player {
+  id: string;
+  name: string;
+}
+
 const App: React.FC = () => {
   const boxCount = 6;
+  const [winnerId, setWinnerId] = useState<string>("");
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [turn, setTurn] = useState<boolean>(false);
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [joined, setJoined] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
-  const [, setSocketID] = useState<string>("");
+  const [socketId, setSocketID] = useState<string>("");
   const [phase, setPhase] = useState<Phase>("menu");
   const [isReady, setIsReady] = useState<boolean>(false);
   const [opponentReady, setOpponentReady] = useState<boolean>(false);
@@ -29,11 +37,15 @@ const App: React.FC = () => {
       setSocketID(socket.id ?? ""); // Set the socket ID to the state
     });
 
+    socket.on("updatePlayers", (updatedPlayers: Player[]) => {
+      setPlayers(updatedPlayers);
+    });
+
     socket.on("gameStart", () => setPhase("placement"));
     socket.on("updateBoard", (updatedBoard: Cell[][]) =>
       setOpponentBoard(updatedBoard)
     );
-    socket.on("endGame", (winner: string) => alert(`${winner} wins!`));
+    socket.on("endGame", (winnerId: any) => setWinnerId(() => winnerId));
     socket.on("playerReady", () => setOpponentReady(true));
     socket.on("startGame", () => setPhase("playing"));
     socket.on(
@@ -67,6 +79,8 @@ const App: React.FC = () => {
       }
     );
 
+    socket.on("yourTurn", (yourTurn) => setTurn(() => yourTurn.isYourTurn));
+
     return () => {
       socket.off("connect");
       socket.off("gameStart");
@@ -75,8 +89,17 @@ const App: React.FC = () => {
       socket.off("playerReady");
       socket.off("startGame");
       socket.off("attackResult");
+      socket.off("yourTurn");
     };
-  }, []);
+  }, [winnerId]);
+
+  const getOpponentId = () => {
+    const playerIdToFind = socketId;
+
+    return players.find((player) => player.id !== playerIdToFind);
+  };
+
+  console.log("PLAYRS", socketId, getOpponentId()?.name);
 
   const handlePlacementComplete = () => {
     setPlayerReady(() => true);
@@ -117,6 +140,8 @@ const App: React.FC = () => {
     socket.emit("makeMove", { row, col });
   };
 
+  console.log("TURN", turn);
+
   return (
     <div className="app">
       {phase === "menu" && (
@@ -146,7 +171,13 @@ const App: React.FC = () => {
       )}
       {phase === "playing" && (
         <>
-          <PlayerList />
+          <PlayerList
+            players={players}
+            yourTurn={true}
+            isWinner={winnerId}
+            socketId={socketId}
+          />
+
           <div className="boards-container">
             <div className="board-container">
               <h2>Your Board</h2>
@@ -157,11 +188,12 @@ const App: React.FC = () => {
               />
             </div>
             <div className="board-container">
-              <h2>Opponent's Board</h2>
+              <h2>{getOpponentId()?.name} Board</h2>
               <GameBoard
                 board={opponentBoard}
                 onCellClick={makeMove}
                 isOpponentBoard={true}
+                yourTurn={turn}
               />
             </div>
           </div>

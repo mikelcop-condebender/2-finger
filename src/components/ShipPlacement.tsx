@@ -145,7 +145,11 @@ const ShipPlacement: React.FC<{
         </button>
       </div>
 
-      <GameBoard board={playerBoard} onCellClick={handleShipPlacement} />
+      <GameBoard
+        board={playerBoard}
+        onCellClick={handleShipPlacement}
+        yourTurn={true}
+      />
     </div>
   );
 };
