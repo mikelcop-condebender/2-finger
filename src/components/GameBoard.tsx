@@ -7,23 +7,20 @@ interface GameBoardProps {
   board: Cell[][];
   onCellClick: (row: number, col: number) => void;
   isOpponentBoard?: boolean; // Add this prop to differentiate boards
-  attackerId?: string;
-  ownId?: string;
+  yourTurn?: boolean;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
   board,
   onCellClick,
   isOpponentBoard = false,
-  attackerId,
-  ownId,
+  yourTurn,
 }) => {
   return (
     <div className="game-board">
       {board.map((row, rowIndex) => (
         <div key={rowIndex} className="board-row">
           {row.map((cell, colIndex) => {
-            console.log({ cell });
             const shipChar = {
               battleship: "🚢",
               cruiser: "🛥️",
@@ -42,9 +39,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
             return (
               <div
+                style={{
+                  cursor: cell || !yourTurn ? "not-allowed" : "crosshair",
+                }}
                 key={colIndex}
                 className={`board-cell ${cellClass}`}
-                onClick={() => onCellClick(rowIndex, colIndex)} // Ensure this function is called
+                onClick={() => {
+                  return (
+                    (!cell || !yourTurn) && onCellClick(rowIndex, colIndex)
+                  );
+                }} // Ensure this function is called
               >
                 {/* Optional: Display first letter of the ship name if it's a ship */}
                 {typeof cell === "string" &&

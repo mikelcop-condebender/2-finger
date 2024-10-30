@@ -1,5 +1,7 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://api.2-finger.com/");
+const serverIp = process.env.REACT_APP_SERVER_IP;
+
+const socket = io(`${serverIp}`);
 
 export default socket;
