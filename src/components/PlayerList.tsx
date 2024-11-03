@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import socket from "../socket";
 
 interface GameBoardProps {
   yourTurn: boolean;
@@ -15,6 +14,8 @@ const PlayerList: React.FC<GameBoardProps> = ({
   socketId,
 }) => {
   const [isWin, setIsWin] = useState<boolean>(false);
+
+  console.log({ players });
 
   useEffect(() => {
     setIsWin(() => {
@@ -37,6 +38,7 @@ const PlayerList: React.FC<GameBoardProps> = ({
       ) : (
         <h2>{yourTurn ? "Your Turn" : "Wait for your turn"}</h2>
       )}
+
       <ul>
         {players.map((player: any) => (
           <li key={player.id}>
