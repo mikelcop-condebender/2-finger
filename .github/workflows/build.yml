@@ -2,6 +2,8 @@ name: Check Node.js, npm, and Approvals
 
 on:
   pull_request:
+    branches:
+      - master
     types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
@@ -30,11 +32,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure at least one approval
+      - name: Ensure at least one approval before merging to master
         run: |
           approvals=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews | map(select(.state == \"APPROVED\")) | length")
           if [[ "$approvals" -lt 1 ]]; then
-            echo "At least one approval is required before merging."
+            echo "At least one approval is required before merging to master."
             exit 1
           fi
         env:
