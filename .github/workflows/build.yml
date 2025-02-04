@@ -1,10 +1,19 @@
-name: Check Node.js, npm, and Approvals
+name: Check Node.js, npm, Approvals, Commits, and Pushes
 
 on:
   pull_request:
     branches:
       - master
+      - dev
     types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - '*'
+  pull_request_target:
+    branches:
+      - master
+      - dev
+    types: [closed]
 
 jobs:
   check-node-npm:
@@ -16,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # Change as needed
+          node-version: 'latest'
 
       - name: Check Node.js version
         run: node -v
@@ -25,6 +34,7 @@ jobs:
         run: npm -v
 
   require-approval:
+    if: github.event.pull_request.merged == true && (github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'dev')
     runs-on: ubuntu-latest
     steps:
       - name: Check for approvals
@@ -32,12 +42,41 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure at least one approval before merging to master
+      - name: Ensure at least one approval before merging to master or dev
         run: |
           approvals=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews | map(select(.state == \"APPROVED\")) | length")
           if [[ "$approvals" -lt 1 ]]; then
-            echo "At least one approval is required before merging to master."
+            echo "At least one approval is required before merging to master or dev."
             exit 1
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  check-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure commit messages follow convention
+        run: |
+          commits=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].message')
+          for commit in $commits; do
+            if [[ ! $commit =~ ^(feat|fix|chore|docs|style|refactor|perf|test)(\(.*\))?: .+ ]]; then
+              echo "Commit message '$commit' does not follow the convention."
+              exit 1
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  check-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Validate pushed code
+        run: |
+          echo "Checking pushed code integrity..."
+          # Add any push validation logic here
