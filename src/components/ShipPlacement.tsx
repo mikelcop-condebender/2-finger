@@ -53,6 +53,8 @@ const ShipPlacement: React.FC<{
   const handleShipPlacement = (row: number, col: number) => {
     const shipSize = getShipSize(selectedShip);
 
+    console.log({ selectedShip, shipSize });
+
     if (!canPlaceShip(selectedShip)) {
       alert("You have reached the maximum number of this type of ship.");
       return;
