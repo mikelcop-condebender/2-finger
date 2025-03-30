@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://iskxg0higvma"]
+
+[ext_resource type="Texture2D" uid="uid://bhsvxyprfwtdj" path="res://icon.svg" id="1_tlok4"]
+[ext_resource type="Script" uid="uid://kohmmpeheiit" path="res://components/metal_ball_component.gd" id="2_bkgw8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bkgw8"]
+radius = 73.171
+
+[node name="MetalBall" type="RigidBody2D"]
+script = ExtResource("2_bkgw8")
+metadata/_custom_type_script = "uid://kohmmpeheiit"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_tlok4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bkgw8")
