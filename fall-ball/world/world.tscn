@@ -1,0 +1,58 @@
+[gd_scene load_steps=8 format=3 uid="uid://ci13q4pi2w4vd"]
+
+[ext_resource type="PackedScene" uid="uid://iskxg0higvma" path="res://player/metal_ball.tscn" id="1_6xmxd"]
+[ext_resource type="PackedScene" uid="uid://b7r01wogxkn0c" path="res://platform/platform_component.tscn" id="2_tcf2h"]
+[ext_resource type="PackedScene" uid="uid://dc1bt078wldqk" path="res://player/win_zone.tscn" id="3_h5o24"]
+[ext_resource type="PackedScene" uid="uid://xjg6pgu1617u" path="res://enemy/deat_zone.tscn" id="4_mmdvd"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_g312j"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_6xmxd"]
+normal = Vector2(1, 0)
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_tcf2h"]
+normal = Vector2(-1, 0)
+
+[node name="World" type="Node2D"]
+
+[node name="MetalBall" parent="." instance=ExtResource("1_6xmxd")]
+position = Vector2(266, -115)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-2, 1921)
+shape = SubResource("WorldBoundaryShape2D_g312j")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("WorldBoundaryShape2D_6xmxd")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(1081, 0)
+shape = SubResource("WorldBoundaryShape2D_tcf2h")
+
+[node name="PlatformComponent" parent="." instance=ExtResource("2_tcf2h")]
+position = Vector2(37, 365)
+rotation = 0.0504518
+
+[node name="PlatformComponent2" parent="." instance=ExtResource("2_tcf2h")]
+position = Vector2(461, 801)
+rotation = 0.00660001
+
+[node name="PlatformComponent3" parent="." instance=ExtResource("2_tcf2h")]
+position = Vector2(43.9999, 1168)
+rotation = -0.219121
+
+[node name="PlatformComponent4" parent="." instance=ExtResource("2_tcf2h")]
+position = Vector2(555, 1413)
+rotation = 0.0291998
+
+[node name="PlatformComponent5" parent="." instance=ExtResource("2_tcf2h")]
+position = Vector2(302, 1689)
+rotation = 0.0345603
+
+[node name="WinZone" parent="." instance=ExtResource("3_h5o24")]
+position = Vector2(30, 1891)
+
+[node name="DeatZone" parent="." instance=ExtResource("4_mmdvd")]
+position = Vector2(1004, 1844)
